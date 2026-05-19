@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Roast Machine
+
+Upload a photo → AI sees it → AI roasts it mercilessly → You can argue back → Repeat.
+
+Built with Next.js, Tailwind CSS, and Gemini AI (gemini-2.5-flash).
+
+## Features
+
+- **Drag-and-drop image upload** - Upload any image by dragging or clicking
+- **Multiple roast intensities** - Mild, Medium, Savage, or Poetic
+- **Defend yourself** - Type an excuse and the AI will roast you harder
+- **Shareable roast cards** - Download and share your roasts as images
+- **Roast again** - Get a different angle on the same image
+
+## Tech Stack
+
+- **Frontend**: React + Tailwind CSS (Next.js 16)
+- **Backend**: Next.js API Routes
+- **AI**: Google Gemini 2.5 Flash (vision model)
+- **Image handling**: Base64 encoding (no storage)
+- **Share cards**: html2canvas
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+ installed
+- A Google Gemini API key ([Get one here](https://makersuite.google.com/app/apikey))
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Set up environment variables:
+```bash
+cp .env.local.example .env.local
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4. Add your Gemini API key to `.env.local`:
+```
+GEMINI_API_KEY=your_actual_api_key_here
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+5. Run the development server:
+```bash
+npm run dev
+```
 
-## Learn More
+6. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-To learn more about Next.js, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+app/
+ ├── page.tsx              # Main page with all components
+ ├── api/
+ │    └── roast/
+ │         └── route.ts     # API endpoint for roasting
+components/
+ ├── UploadBox.tsx         # Image upload with drag-and-drop
+ ├── RoastCard.tsx         # Display roast with image
+ ├── IntensitySlider.tsx   # Roast intensity selector
+ ├── DefenseInput.tsx      # User defense text input
+ └── ShareButton.tsx       # Share card generation
+lib/
+ ├── gemini.ts             # Gemini API integration
+ └── prompts.ts            # Roast prompts for different intensities
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## How It Works
 
-## Deploy on Vercel
+1. User uploads an image (converted to base64)
+2. User selects roast intensity and optionally adds a defense
+3. Frontend sends image + intensity + defense to `/api/roast`
+4. Backend calls Gemini 2.5 Flash with the image and appropriate system prompt
+5. AI returns a roast based on what it sees in the image
+6. Roast is displayed with the image in a shareable card
+7. User can download the card as an image or copy it to clipboard
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Roast Intensities
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Mild**: Gentle and playful observations
+- **Medium**: Witty and clever roasts
+- **Savage**: Brutally honest Comedy Central-style roasts
+- **Poetic**: Beautifully cutting verse
+
+## Deployment
+
+Deploy on Vercel for free:
+
+1. Push your code to GitHub
+2. Import your repository on [Vercel](https://vercel.com/new)
+3. Add `GEMINI_API_KEY` as an environment variable in Vercel settings
+4. Deploy
+
+## Viral Strategy Tips
+
+- Target Reddit's r/RoastMe and r/mildlyinteresting
+- Post on Twitter/X with hashtag #AIRoastMachine
+- Share in Ethiopian tech communities and university groups
+- Emphasize the "object roast" angle - upload anything (desk, fridge, car, outfit)
+- Make sharing frictionless with the shareable card feature
+
+## License
+
+MIT
