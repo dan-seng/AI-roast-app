@@ -1,22 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
+import { CSSProperties, useEffect, useState } from "react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import UploadBox from "@/components/UploadBox";
 import RoastCard from "@/components/RoastCard";
 import IntensitySlider from "@/components/IntensitySlider";
 import DefenseInput from "@/components/DefenseInput";
 import ShareButton from "@/components/ShareButton";
 import LanguageSelector from "@/components/LanguageSelector";
+import AppNavbar from "@/components/AppNavbar";
 import { IntensityLevel } from "@/lib/prompts";
 import { RoastLanguage } from "@/lib/languages";
 
+type AuthIntent = "login" | "create" | null;
+
 export default function Home() {
+  const { data: session, status } = useSession();
+  const [authIntent, setAuthIntent] = useState<AuthIntent>(null);
+
   const [image, setImage] = useState<string | null>(null);
   const [intensity, setIntensity] = useState<IntensityLevel>("medium");
   const [language, setLanguage] = useState<RoastLanguage>("english");
   const [defense, setDefense] = useState("");
   const [roast, setRoast] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
+  const [latestRoastId, setLatestRoastId] = useState<string | null>(null);
+  const [pointerGlow, setPointerGlow] = useState({ x: 50, y: 50 });
+  const [profileAvatar, setProfileAvatar] = useState("");
+  const [profileName, setProfileName] = useState("");
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      const res = await fetch("/api/me");
+      const data = await res.json();
+      const p = data?.profile as { avatar?: string; name?: string } | undefined;
+      setProfileAvatar(p?.avatar || "");
+      setProfileName(p?.name || "");
+    };
+    if (session) {
+      void loadProfile();
+    }
+  }, [session]);
 
   const handleRoast = async () => {
     if (!image) return;
@@ -28,12 +53,20 @@ export default function Home() {
       const response = await fetch("/api/roast", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image, intensity, language, userDefense: defense }),
+        body: JSON.stringify({
+          image,
+          intensity,
+          language,
+          userDefense: defense,
+        }),
       });
 
       const data = await response.json();
       if (data.error) setRoast("Error: " + data.error);
-      else setRoast(data.roast);
+      else {
+        setRoast(data.roast);
+        setLatestRoastId(data.roastId || null);
+      }
     } catch {
       setRoast("Failed to generate roast. Please try again.");
     } finally {
@@ -45,6 +78,7 @@ export default function Home() {
     setImage(null);
     setRoast("");
     setDefense("");
+    setLatestRoastId(null);
   };
 
   const handleRoastAgain = () => {
@@ -52,31 +86,219 @@ export default function Home() {
     handleRoast();
   };
 
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen grid place-items-center px-4">
+        <div className="rounded-2xl border border-slate-300/15 bg-slate-950/45 px-6 py-4 text-slate-200">
+          Loading...
+        </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="min-h-screen p-3 md:p-6">
+        <section
+          className="interactive-bg h-[calc(100vh-24px)] w-full rounded-3xl md:h-[calc(100vh-48px)]"
+          style={
+            {
+              "--mx": `${pointerGlow.x}%`,
+              "--my": `${pointerGlow.y}%`,
+            } as CSSProperties
+          }
+          onMouseMove={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+            setPointerGlow({ x, y });
+          }}
+        >
+          <div className="grid h-full lg:grid-cols-[1.25fr_0.75fr]">
+            <div className="relative flex flex-col justify-between p-8 md:p-12">
+              <div>
+                <p className="mb-4 text-lg font-semibold uppercase tracking-[0.24em] text-emerald-300/90">
+                  Welcome to <span className="text-5xl">ኩክኒስ</span>
+                </p>
+                <h1 className="display-font max-w-3xl text-5xl font-bold leading-[0.95] text-slate-100 md:text-7xl">
+                  Roast Better.
+                  <br />
+                  Share Faster.
+                </h1>
+                <p className="mt-6 max-w-2xl text-base text-slate-300 md:text-xl">
+                  AI-powered roasts with intensity control, language options,
+                  and export-ready visuals for social media.
+                </p>
+              </div>
+
+              <div className="grid gap-3 text-sm text-slate-300 md:max-w-2xl md:grid-cols-3">
+                <div className="rounded-xl border border-slate-400/25 bg-slate-900/45 p-3">
+                  Instant AI roast generation
+                </div>
+                <div className="rounded-xl border border-slate-400/25 bg-slate-900/45 p-3">
+                  Google & GitHub sign-in
+                </div>
+                <div className="rounded-xl border border-slate-400/25 bg-slate-900/45 p-3">
+                  Saved history + export tracking
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center p-5 md:p-8">
+              <div className="w-full rounded-2xl border border-slate-400/30 bg-slate-950/80 p-6 md:p-7">
+                <h2 className="display-font text-3xl font-semibold text-slate-100">
+                  {authIntent === "create" ? "Create Account" : "Sign In"}
+                </h2>
+                <p className="mt-2 text-sm text-slate-400">
+                  Continue with your preferred provider.
+                </p>
+
+                <div className="mt-5 flex gap-2">
+                  <button
+                    onClick={() => setAuthIntent("create")}
+                    className={`w-full rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
+                      authIntent === "create"
+                        ? "bg-emerald-600 text-white"
+                        : "bg-slate-900/60 text-slate-100 hover:bg-slate-800"
+                    }`}
+                  >
+                    Create
+                  </button>
+                  <button
+                    onClick={() => setAuthIntent("login")}
+                    className={`w-full rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
+                      authIntent === "login" || authIntent === null
+                        ? "bg-emerald-600 text-white"
+                        : "bg-slate-900/60 text-slate-100 hover:bg-slate-800"
+                    }`}
+                  >
+                    Login
+                  </button>
+                </div>
+
+                <div className="mt-5 space-y-3">
+                  <button
+                    onClick={() => signIn("google")}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-200"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="h-5 w-5"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fill="#4285F4"
+                        d="M23.49 12.27c0-.79-.07-1.54-.2-2.27H12v4.3h6.46a5.52 5.52 0 01-2.39 3.62v3h3.87c2.26-2.08 3.55-5.14 3.55-8.65z"
+                      />
+                      <path
+                        fill="#34A853"
+                        d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.87-3c-1.07.72-2.44 1.15-4.08 1.15-3.13 0-5.78-2.11-6.72-4.95H1.29v3.11A12 12 0 0012 24z"
+                      />
+                      <path
+                        fill="#FBBC05"
+                        d="M5.28 14.29A7.2 7.2 0 014.9 12c0-.8.14-1.57.38-2.29V6.6H1.29A12 12 0 000 12c0 1.94.47 3.77 1.29 5.4l3.99-3.11z"
+                      />
+                      <path
+                        fill="#EA4335"
+                        d="M12 4.77c1.76 0 3.33.61 4.57 1.8l3.42-3.42C17.95 1.17 15.23 0 12 0A12 12 0 001.29 6.6l3.99 3.11c.94-2.84 3.59-4.94 6.72-4.94z"
+                      />
+                    </svg>
+                    Continue with Google
+                  </button>
+                  <button
+                    onClick={() => signIn("github")}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-800 px-5 py-3 text-sm font-semibold text-slate-100 ring-1 ring-slate-600 transition hover:bg-slate-700"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="h-5 w-5 fill-current"
+                      aria-hidden="true"
+                    >
+                      <path d="M12 .5a12 12 0 00-3.79 23.39c.6.11.82-.26.82-.58v-2.2c-3.34.73-4.04-1.41-4.04-1.41-.55-1.38-1.34-1.75-1.34-1.75-1.1-.76.08-.75.08-.75 1.2.08 1.84 1.24 1.84 1.24 1.08 1.85 2.83 1.32 3.52 1 .11-.78.42-1.31.76-1.62-2.67-.31-5.47-1.34-5.47-5.94 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.53.12-3.19 0 0 1.01-.33 3.3 1.23a11.4 11.4 0 016 0c2.29-1.56 3.29-1.23 3.29-1.23.67 1.66.26 2.89.13 3.19.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.49 5.93.43.37.82 1.11.82 2.24v3.32c0 .32.22.7.83.58A12 12 0 0012 .5z" />
+                    </svg>
+                    Continue with GitHub
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-10 md:py-14">
+        <AppNavbar />
+
         <header className="mb-6 rounded-3xl border border-slate-300/15 bg-slate-950/45 p-6 md:mb-8 md:p-8">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300/90">
-            Style-First Roast Lab
-          </p>
-          <h1 className="display-font text-4xl font-bold leading-tight text-slate-100 md:text-6xl">
-            AI Roast Machine
-          </h1>
-          <p className="mt-3 max-w-2xl text-slate-300 md:text-lg">
-            Upload, tune, roast, and export in a cleaner workspace built for speed.
-          </p>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300/90">
+                Style-First Roast Lab
+              </p>
+              <h1 className="display-font text-4xl font-bold leading-tight text-slate-100 md:text-6xl">
+                Create Roast
+              </h1>
+              <p className="mt-3 max-w-2xl text-slate-300 md:text-lg">
+                Upload, tune, roast, and export.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 rounded-xl border border-slate-500/50 bg-slate-900/55 px-4 py-3 text-right">
+              <div className="relative h-11 w-11 overflow-hidden rounded-full border border-slate-500/60 bg-slate-800">
+                {profileAvatar ? (
+                  <Image
+                    src={profileAvatar}
+                    alt="Profile picture"
+                    fill
+                    unoptimized
+                    sizes="44px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="grid h-full w-full place-items-center text-sm font-semibold text-slate-300">
+                    {(profileName || session.user?.name || "U")
+                      .slice(0, 1)
+                      .toUpperCase()}
+                  </div>
+                )}
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-slate-100">
+                  {profileName || session.user?.name || "Signed in"}
+                </p>
+                <p className="text-xs text-slate-400">{session.user?.email}</p>
+                <button
+                  onClick={() => signOut()}
+                  className="mt-2 text-xs font-semibold text-emerald-300 hover:text-emerald-200"
+                >
+                  Sign out
+                </button>
+              </div>
+            </div>
+          </div>
         </header>
 
         <main className="grid gap-6 lg:grid-cols-[420px_minmax(0,1fr)]">
           <section className="rounded-3xl border border-slate-300/15 bg-slate-950/50 p-5 md:p-6 lg:sticky lg:top-6 lg:h-fit">
-            <h2 className="display-font text-2xl font-semibold text-slate-100">Controls</h2>
-            <p className="mt-1 text-sm text-slate-400">Upload and configure your roast.</p>
+            <h2 className="display-font text-2xl font-semibold text-slate-100">
+              Controls
+            </h2>
+            <p className="mt-1 text-sm text-slate-400">
+              Upload and configure your roast.
+            </p>
 
             <div className="mt-5 space-y-5">
               <UploadBox onImageSelect={setImage} previewImage={image} />
-
-              <IntensitySlider intensity={intensity} onIntensityChange={setIntensity} />
-              <LanguageSelector language={language} onLanguageChange={setLanguage} />
+              <IntensitySlider
+                intensity={intensity}
+                onIntensityChange={setIntensity}
+              />
+              <LanguageSelector
+                language={language}
+                onLanguageChange={setLanguage}
+              />
               <DefenseInput defense={defense} onDefenseChange={setDefense} />
 
               <button
@@ -93,9 +315,13 @@ export default function Home() {
             <div className="rounded-3xl border border-slate-300/15 bg-slate-950/45 p-5 md:p-6">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
-                  <h2 className="display-font text-2xl font-semibold text-slate-100">Result</h2>
+                  <h2 className="display-font text-2xl font-semibold text-slate-100">
+                    Result
+                  </h2>
                   <p className="text-sm text-slate-400">
-                    {roast ? "Your roast is ready." : "Your roast will appear here after generation."}
+                    {roast
+                      ? "Your roast is ready."
+                      : "Your roast will appear here after generation."}
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -115,24 +341,30 @@ export default function Home() {
                 </div>
               </div>
 
-              <RoastCard roast={roast} isStreaming={isStreaming} image={image || ""} />
+              <RoastCard
+                roast={roast}
+                isStreaming={isStreaming}
+                image={image || ""}
+              />
             </div>
 
             <div className="rounded-3xl border border-slate-300/15 bg-slate-950/45 p-5 md:p-6">
-              <h3 className="display-font text-xl font-semibold text-slate-100">Export</h3>
+              <h3 className="display-font text-xl font-semibold text-slate-100">
+                Export
+              </h3>
               <p className="mt-1 text-sm text-slate-400">
                 Download a social media image or copy it directly to clipboard.
               </p>
               <div className="mt-4">
-                <ShareButton roast={roast} image={image || ""} />
+                <ShareButton
+                  roast={roast}
+                  image={image || ""}
+                  roastHistoryId={latestRoastId}
+                />
               </div>
             </div>
           </section>
         </main>
-
-        <footer className="pb-4 pt-8 text-center text-sm text-slate-500">
-          Built with Next.js, Tailwind CSS, and Gemini AI
-        </footer>
       </div>
     </div>
   );
