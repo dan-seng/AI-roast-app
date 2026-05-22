@@ -8,14 +8,16 @@ type ExportSize = "portrait" | "story";
 interface ShareButtonProps {
   roast: string;
   image: string;
+  roastHistoryId?: string | null;
+  onExportLogged?: () => void;
 }
 
-const exportSizes: Record<ExportSize, { label: string; width: number; height: number }> = {
-  portrait: { label: "1080 x 1350", width: 1080, height: 1350 },
-  story: { label: "1080 x 1920", width: 1080, height: 1920 },
+const exportSizes: Record<ExportSize, { label: string; width: number; height: number; preset: "1080x1350" | "1080x1920" }> = {
+  portrait: { label: "1080 x 1350", width: 1080, height: 1350, preset: "1080x1350" },
+  story: { label: "1080 x 1920", width: 1080, height: 1920, preset: "1080x1920" },
 };
 
-export default function ShareButton({ roast, image }: ShareButtonProps) {
+export default function ShareButton({ roast, image, roastHistoryId, onExportLogged }: ShareButtonProps) {
   const [size, setSize] = useState<ExportSize>("portrait");
 
   const handleShare = async () => {
@@ -25,10 +27,9 @@ export default function ShareButton({ roast, image }: ShareButtonProps) {
     }
 
     try {
-      const { width, height } = exportSizes[size];
+      const { width, height, preset } = exportSizes[size];
       const roastLength = roast.trim().length;
-      const textSize =
-        roastLength > 1000 ? 18 : roastLength > 850 ? 20 : roastLength > 650 ? 22 : 24;
+      const textSize = roastLength > 1000 ? 18 : roastLength > 850 ? 20 : roastLength > 650 ? 22 : 24;
 
       const exportRoot = document.createElement("div");
       exportRoot.style.position = "fixed";
@@ -41,8 +42,7 @@ export default function ShareButton({ roast, image }: ShareButtonProps) {
       exportRoot.style.display = "flex";
       exportRoot.style.flexDirection = "column";
       exportRoot.style.gap = "24px";
-      exportRoot.style.background =
-        "radial-gradient(circle at 15% 10%, #1f8f62 0%, #111827 42%, #05070b 100%)";
+      exportRoot.style.background = "radial-gradient(circle at 15% 10%, #1f8f62 0%, #111827 42%, #05070b 100%)";
       exportRoot.style.borderRadius = "34px";
       exportRoot.style.border = "1px solid rgba(255,255,255,0.14)";
 
@@ -132,26 +132,43 @@ export default function ShareButton({ roast, image }: ShareButtonProps) {
       document.body.removeChild(exportRoot);
 
       const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+      const fileName = `roast-card-${width}x${height}.jpg`;
       const link = document.createElement("a");
-      link.download = `roast-card-${width}x${height}.jpg`;
+      link.download = fileName;
       link.href = dataUrl;
       link.click();
 
-      canvas.toBlob(
-        async (blob) => {
-          if (!blob) return;
-          try {
-            await navigator.clipboard.write([
-              new ClipboardItem({ "image/jpeg": blob }),
-            ]);
-            alert("Share image downloaded and copied to clipboard.");
-          } catch (err) {
-            console.error("Failed to copy image to clipboard:", err);
-          }
-        },
-        "image/jpeg",
-        0.9,
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob((b) => resolve(b), "image/jpeg", 0.9),
       );
+
+      if (blob) {
+        try {
+          await navigator.clipboard.write([new ClipboardItem({ "image/jpeg": blob })]);
+        } catch (err) {
+          console.error("Failed to copy image to clipboard:", err);
+        }
+
+        await fetch("/api/exports", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            roastHistoryId: roastHistoryId || undefined,
+            sizePreset: preset,
+            fileMeta: {
+              fileName,
+              mimeType: "image/jpeg",
+              bytes: blob.size,
+            },
+          }),
+        });
+
+        if (onExportLogged) {
+          onExportLogged();
+        }
+      }
+
+      alert("Share image downloaded and copied to clipboard.");
     } catch (error) {
       console.error("Error generating share image:", error);
       alert("Failed to generate share image. Please try again.");

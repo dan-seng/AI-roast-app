@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 interface RoastCardProps {
   roast: string;
   isStreaming: boolean;
@@ -14,11 +16,14 @@ export default function RoastCard({ roast, isStreaming, image }: RoastCardProps)
     >
       {image ? (
         <div className="grid gap-5 md:grid-cols-[280px_minmax(0,1fr)] md:items-start">
-          <div className="overflow-hidden rounded-xl border border-slate-300/20 bg-slate-950/70">
-            <img
+          <div className="relative min-h-[240px] overflow-hidden rounded-xl border border-slate-300/20 bg-slate-950/70">
+            <Image
               src={image}
               alt="Roasted image"
-              className="h-full w-full max-h-[360px] object-cover"
+              fill
+              unoptimized
+              sizes="(max-width: 768px) 100vw, 280px"
+              className="object-cover"
             />
           </div>
 

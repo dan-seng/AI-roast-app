@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState } from "react";
 
 interface UploadBoxProps {
@@ -61,11 +62,16 @@ export default function UploadBox({ onImageSelect, previewImage }: UploadBoxProp
       />
 
       {previewImage ? (
-        <img
-          src={previewImage}
-          alt="Preview"
-          className="h-full w-full rounded-xl object-contain"
-        />
+        <div className="relative h-full w-full">
+          <Image
+            src={previewImage}
+            alt="Preview"
+            fill
+            unoptimized
+            sizes="(max-width: 768px) 100vw, 420px"
+            className="rounded-xl object-contain"
+          />
+        </div>
       ) : (
         <div className="flex h-full flex-col items-center justify-center text-center">
           <div className="mb-3 rounded-xl bg-emerald-400/15 p-3 text-emerald-300">
