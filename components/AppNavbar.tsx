@@ -9,16 +9,26 @@ import { useSession } from "next-auth/react";
 const links = [
   { href: "/", label: "Create" },
   { href: "/roasts", label: "My Roasts" },
-  { href: "/exports", label: "Exports" },
-  { href: "/history", label: "History" },
   { href: "/profile", label: "Profile" },
 ];
 
 export default function AppNavbar() {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const [avatar, setAvatar] = useState("");
-  const [name, setName] = useState("");
+  const [avatar, setAvatar] = useState(() => {
+    if (typeof window !== "undefined") {
+      const cached = sessionStorage.getItem("kuknis_profile_cache");
+      if (cached) return JSON.parse(cached).avatar || "";
+    }
+    return "";
+  });
+  const [name, setName] = useState(() => {
+    if (typeof window !== "undefined") {
+      const cached = sessionStorage.getItem("kuknis_profile_cache");
+      if (cached) return JSON.parse(cached).name || "";
+    }
+    return "";
+  });
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -27,6 +37,9 @@ export default function AppNavbar() {
       const p = data?.profile as { avatar?: string; name?: string } | undefined;
       setAvatar(p?.avatar || "");
       setName(p?.name || "");
+      if (p) {
+        sessionStorage.setItem("kuknis_profile_cache", JSON.stringify({ avatar: p.avatar || "", name: p.name || "" }));
+      }
     };
     if (session) {
       void loadProfile();

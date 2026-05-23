@@ -23,7 +23,7 @@ export default function RoastCard({ roast, isStreaming, image }: RoastCardProps)
               fill
               unoptimized
               sizes="(max-width: 768px) 100vw, 280px"
-              className="object-cover"
+              className="object-contain"
             />
           </div>
 
@@ -31,15 +31,20 @@ export default function RoastCard({ roast, isStreaming, image }: RoastCardProps)
             <h3 className="display-font mb-3 text-xl font-semibold text-white md:text-2xl">
               The Verdict
             </h3>
-            <p className="text-sm leading-relaxed text-slate-200 md:text-base">
-              {isStreaming && !roast ? (
-                <span className="animate-pulse">Thinking...</span>
-              ) : (
-                roast || "Your roast will appear here"
-              )}
-            </p>
-            {isStreaming && (
-              <span className="mt-1 inline-block animate-bounce text-emerald-300">|</span>
+            {isStreaming && !roast ? (
+              <div className="mt-2 space-y-3 animate-pulse">
+                <div className="h-4 w-full rounded-md bg-slate-700/50"></div>
+                <div className="h-4 w-11/12 rounded-md bg-slate-700/50"></div>
+                <div className="h-4 w-4/5 rounded-md bg-slate-700/50"></div>
+                <div className="h-4 w-5/6 rounded-md bg-slate-700/50"></div>
+              </div>
+            ) : (
+              <p className="text-sm leading-relaxed text-slate-200 md:text-base">
+                {roast || "Your roast will appear here"}
+                {isStreaming && roast && (
+                  <span className="ml-1 inline-block animate-pulse text-emerald-300">|</span>
+                )}
+              </p>
             )}
           </div>
         </div>
