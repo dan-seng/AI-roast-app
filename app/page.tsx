@@ -27,8 +27,20 @@ export default function Home() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [latestRoastId, setLatestRoastId] = useState<string | null>(null);
   const [pointerGlow, setPointerGlow] = useState({ x: 50, y: 50 });
-  const [profileAvatar, setProfileAvatar] = useState("");
-  const [profileName, setProfileName] = useState("");
+  const [profileAvatar, setProfileAvatar] = useState(() => {
+    if (typeof window !== "undefined") {
+      const cached = sessionStorage.getItem("kuknis_profile_cache");
+      if (cached) return JSON.parse(cached).avatar || "";
+    }
+    return "";
+  });
+  const [profileName, setProfileName] = useState(() => {
+    if (typeof window !== "undefined") {
+      const cached = sessionStorage.getItem("kuknis_profile_cache");
+      if (cached) return JSON.parse(cached).name || "";
+    }
+    return "";
+  });
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -37,11 +49,49 @@ export default function Home() {
       const p = data?.profile as { avatar?: string; name?: string } | undefined;
       setProfileAvatar(p?.avatar || "");
       setProfileName(p?.name || "");
+      if (p) {
+        sessionStorage.setItem("kuknis_profile_cache", JSON.stringify({ avatar: p.avatar || "", name: p.name || "" }));
+      }
     };
     if (session) {
       void loadProfile();
     }
   }, [session]);
+
+  // Load saved state on mount
+  useEffect(() => {
+    try {
+      const savedState = sessionStorage.getItem("kuknis_roast_state");
+      if (savedState) {
+        const parsed = JSON.parse(savedState);
+        if (parsed.image) setImage(parsed.image);
+        if (parsed.intensity) setIntensity(parsed.intensity);
+        if (parsed.language) setLanguage(parsed.language);
+        if (parsed.defense !== undefined) setDefense(parsed.defense);
+        if (parsed.roast !== undefined) setRoast(parsed.roast);
+        if (parsed.latestRoastId !== undefined) setLatestRoastId(parsed.latestRoastId);
+      }
+    } catch (e) {
+      console.error("Failed to load state", e);
+    }
+  }, []);
+
+  // Save state whenever it changes
+  useEffect(() => {
+    const stateToSave = {
+      image,
+      intensity,
+      language,
+      defense,
+      roast,
+      latestRoastId
+    };
+    try {
+      sessionStorage.setItem("kuknis_roast_state", JSON.stringify(stateToSave));
+    } catch (e) {
+      console.warn("Could not save state to sessionStorage (quota exceeded?)", e);
+    }
+  }, [image, intensity, language, defense, roast, latestRoastId]);
 
   const handleRoast = async () => {
     if (!image) return;
@@ -88,10 +138,27 @@ export default function Home() {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen grid place-items-center px-4">
-        <div className="rounded-2xl border border-slate-300/15 bg-slate-950/45 px-6 py-4 text-slate-200">
-          Loading...
-        </div>
+      <div className="min-h-screen p-3 md:p-6 animate-pulse">
+        <section className="h-[calc(100vh-24px)] w-full rounded-3xl md:h-[calc(100vh-48px)] border border-slate-300/10 bg-slate-900/20">
+          <div className="grid h-full lg:grid-cols-[1.25fr_0.75fr]">
+            <div className="flex flex-col p-8 md:p-12">
+              <div className="mt-12 space-y-4">
+                <div className="h-8 w-48 rounded-lg bg-slate-800/60"></div>
+                <div className="h-20 w-3/4 rounded-xl bg-slate-800/60 mt-6"></div>
+                <div className="h-20 w-1/2 rounded-xl bg-slate-800/60 mt-2"></div>
+                <div className="h-10 w-2/3 rounded-lg bg-slate-800/60 mt-8"></div>
+              </div>
+              <div className="mt-auto grid gap-3 md:max-w-2xl md:grid-cols-3">
+                <div className="h-16 rounded-xl bg-slate-800/50"></div>
+                <div className="h-16 rounded-xl bg-slate-800/50"></div>
+                <div className="h-16 rounded-xl bg-slate-800/50"></div>
+              </div>
+            </div>
+            <div className="flex items-center p-5 md:p-8">
+              <div className="h-96 w-full rounded-2xl bg-slate-800/40"></div>
+            </div>
+          </div>
+        </section>
       </div>
     );
   }
