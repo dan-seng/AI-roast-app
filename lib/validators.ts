@@ -12,7 +12,7 @@ export const roastRequestSchema = z.object({
 export const profilePatchSchema = z.object({
   name: z.string().max(80).optional(),
   bio: z.string().max(280).optional(),
-  avatar: z.string().url().optional().or(z.literal("")),
+  avatar: z.string().optional().or(z.literal("")),
   plan: z.enum(["free", "pro", "team"]).optional(),
   preferences: z
     .object({
