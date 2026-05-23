@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
 
     const roastDoc: RoastHistory = {
       userId,
+      imageRef: image,
       imageHash: createHash("sha256").update(base64Image).digest("hex"),
       roastText: roast,
       intensity,
