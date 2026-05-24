@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "NokiaPure";
+  src: url("/fonts/nokiapure.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --bg-base: #0b100d;
   --bg-soft: #121915;
@@ -70,6 +78,15 @@ body {
 
 .display-font {
   font-family: var(--font-display), sans-serif;
+}
+
+html[lang="am"] body,
+html[lang="am"] .display-font,
+html[lang="am"] input,
+html[lang="am"] textarea,
+html[lang="am"] select,
+html[lang="am"] button {
+  font-family: "NokiaPure", sans-serif;
 }
 
 .glass-panel {
