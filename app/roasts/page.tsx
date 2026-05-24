@@ -3,8 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import AppNavbar from "@/components/AppNavbar";
-import { IntensityLevel, INTENSITY_LABELS } from "@/lib/prompts";
+import { useUiLanguage } from "@/components/UiLanguageProvider";
+import { translate } from "@/lib/translations";
+import { IntensityLevel } from "@/lib/prompts";
 import { RoastLanguage, ROAST_LANGUAGE_LABELS } from "@/lib/languages";
+import { type TranslationKey } from "@/lib/translations";
+
+function tlIntensity(level: IntensityLevel): TranslationKey {
+  return `intensityLabel.${level}` as TranslationKey;
+}
 
 type RoastItem = {
   _id: string;
@@ -17,6 +24,7 @@ type RoastItem = {
 
 export default function RoastsPage() {
   const { data: session, status } = useSession();
+  const { lang } = useUiLanguage();
   const [roasts, setRoasts] = useState<RoastItem[]>(() => {
     if (typeof window !== "undefined") {
       const cached = sessionStorage.getItem("kuknis_roasts_list");
@@ -126,9 +134,9 @@ export default function RoastsPage() {
     return (
       <div className="min-h-screen grid place-items-center px-4">
         <div className="rounded-2xl border border-slate-400/30 bg-slate-950/70 p-6 text-center">
-          <p className="text-slate-200">Please sign in to view your roasts.</p>
+          <p className="text-slate-200">{translate("roasts.signInPrompt", lang)}</p>
           <button onClick={() => signIn()} className="mt-3 rounded-xl bg-emerald-600 px-4 py-2 text-white">
-            Sign in
+            {translate("auth.signIn", lang)}
           </button>
         </div>
       </div>
@@ -140,8 +148,8 @@ export default function RoastsPage() {
       <div className="mx-auto max-w-7xl">
         <AppNavbar />
         <section className="rounded-3xl border border-slate-300/15 bg-slate-950/45 p-5 md:p-6">
-          <h1 className="display-font text-3xl font-semibold text-slate-100">My Roasts</h1>
-          <p className="mt-1 text-sm text-slate-400">Saved roast history from your account.</p>
+          <h1 className="display-font text-3xl font-semibold text-slate-100">{translate("roasts.title", lang)}</h1>
+          <p className="mt-1 text-sm text-slate-400">{translate("roasts.description", lang)}</p>
 
           <div className="mt-5 space-y-3">
             {isLoadingList ? (
@@ -158,7 +166,7 @@ export default function RoastsPage() {
                 </article>
               ))
             ) : roasts.length === 0 ? (
-              <p className="text-sm text-slate-500">No roasts yet.</p>
+              <p className="text-sm text-slate-500">{translate("roasts.empty", lang)}</p>
             ) : (
               roasts.map((item) => (
                 <article 
@@ -184,13 +192,13 @@ export default function RoastsPage() {
                   <div className="flex-1 w-full overflow-hidden">
                     <div className="flex items-center justify-between gap-3 mb-2">
                       <p className="text-xs text-slate-400 font-medium">
-                        {INTENSITY_LABELS[item.intensity]} • {ROAST_LANGUAGE_LABELS[item.language]} • {formatter.format(new Date(item.createdAt))}
+                        {translate(tlIntensity(item.intensity), lang)} • {ROAST_LANGUAGE_LABELS[item.language]} • {formatter.format(new Date(item.createdAt))}
                       </p>
                       <button 
                         onClick={(e) => { e.stopPropagation(); setRoastToDelete(item._id); }} 
                         className="text-xs font-semibold text-rose-400 hover:text-rose-300 transition-colors shrink-0 px-2 py-1 rounded hover:bg-rose-500/10"
                       >
-                        Delete
+                        {translate("roasts.delete", lang)}
                       </button>
                     </div>
                     <p className="text-sm text-slate-200 line-clamp-3 leading-relaxed">{item.roastText}</p>
@@ -204,7 +212,7 @@ export default function RoastsPage() {
                 onClick={() => loadRoasts(page + 1, true)}
                 className="rounded-xl border border-slate-500/60 bg-slate-900/60 px-4 py-2 text-xs font-semibold text-slate-100 hover:bg-slate-800"
               >
-                Load More
+                {translate("roasts.loadMore", lang)}
               </button>
             )}
           </div>
@@ -229,7 +237,7 @@ export default function RoastsPage() {
             </button>
 
             <h2 className="display-font text-2xl font-bold text-slate-100 mb-5 pr-8">
-              Roast Details
+              {translate("roasts.details", lang)}
             </h2>
             
             {selectedRoast.imageRef ? (
@@ -238,13 +246,13 @@ export default function RoastsPage() {
               </div>
             ) : (
               <div className="mb-6 rounded-2xl border border-dashed border-slate-700/50 bg-slate-950/30 p-6 text-center text-sm text-slate-500">
-                Image was not saved for this older roast.
+                {translate("roasts.oldImage", lang)}
               </div>
             )}
             
             <div className="flex flex-wrap gap-2 mb-5">
               <span className="px-3 py-1.5 rounded-lg bg-emerald-400/10 text-xs font-semibold text-emerald-300 border border-emerald-400/20">
-                {INTENSITY_LABELS[selectedRoast.intensity]} Intensity
+                {translate(tlIntensity(selectedRoast.intensity), lang)} {translate("common.intensity", lang)}
               </span>
               <span className="px-3 py-1.5 rounded-lg bg-sky-400/10 text-xs font-semibold text-sky-300 border border-sky-400/20">
                 {ROAST_LANGUAGE_LABELS[selectedRoast.language]}
@@ -265,7 +273,7 @@ export default function RoastsPage() {
                  onClick={() => setRoastToDelete(selectedRoast._id)} 
                  className="px-4 py-2 rounded-xl text-sm font-semibold text-rose-400 hover:text-white hover:bg-rose-500/20 transition-all"
                >
-                 Delete Roast
+                 {translate("roasts.deleteRoast", lang)}
                </button>
             </div>
           </div>
@@ -285,9 +293,9 @@ export default function RoastsPage() {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/20 text-rose-400">
               <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
             </div>
-            <h3 className="text-lg font-bold text-slate-100 mb-2">Delete Roast?</h3>
+            <h3 className="text-lg font-bold text-slate-100 mb-2">{translate("roasts.deleteTitle", lang)}</h3>
             <p className="text-sm text-slate-400 mb-6">
-              This action cannot be undone. This roast and its image will be permanently removed from your history.
+              {translate("roasts.deleteWarning", lang)}
             </p>
             <div className="flex gap-3">
               <button 
@@ -295,14 +303,14 @@ export default function RoastsPage() {
                 disabled={isDeleting}
                 className="flex-1 rounded-xl bg-slate-800 py-2.5 text-sm font-semibold text-slate-300 hover:bg-slate-700 transition"
               >
-                Cancel
+                {translate("roasts.cancel", lang)}
               </button>
               <button 
                 onClick={confirmDelete}
                 disabled={isDeleting}
                 className="flex-1 rounded-xl bg-rose-600 py-2.5 text-sm font-semibold text-white hover:bg-rose-500 transition disabled:opacity-50"
               >
-                {isDeleting ? "Deleting..." : "Delete"}
+                {isDeleting ? translate("roasts.deleting", lang) : translate("roasts.delete", lang)}
               </button>
             </div>
           </div>
