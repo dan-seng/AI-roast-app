@@ -8,8 +8,8 @@ import { COLLECTIONS, RoastHistory } from "@/lib/models";
 import { ensureDbIndexes } from "@/lib/db-indexes";
 import { roastRequestSchema } from "@/lib/validators";
 
-function getUserIdFromSession(session: Awaited<ReturnType<typeof getServerSession>>) {
-  return (session?.user as { id?: string } | undefined)?.id;
+function getUserIdFromSession(session: unknown) {
+  return (session as { user?: { id?: string } } | null)?.user?.id;
 }
 
 export async function POST(request: NextRequest) {

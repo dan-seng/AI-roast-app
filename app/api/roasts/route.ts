@@ -6,8 +6,8 @@ import { COLLECTIONS } from "@/lib/models";
 import { ensureDbIndexes } from "@/lib/db-indexes";
 import { paginationSchema } from "@/lib/validators";
 
-function getUserIdFromSession(session: Awaited<ReturnType<typeof getServerSession>>) {
-  return (session?.user as { id?: string } | undefined)?.id;
+function getUserIdFromSession(session: unknown) {
+  return (session as { user?: { id?: string } } | null)?.user?.id;
 }
 
 export async function GET(request: NextRequest) {

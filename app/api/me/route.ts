@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { ObjectId } from "mongodb";
+import { ObjectId, type WithId, type Document } from "mongodb";
 import clientPromise from "@/lib/mongodb";
 import { authOptions } from "@/lib/auth";
 import { ensureDbIndexes } from "@/lib/db-indexes";
 import { COLLECTIONS, createDefaultUserProfile } from "@/lib/models";
 import { profilePatchSchema } from "@/lib/validators";
 
-function getUserIdFromSession(session: Awaited<ReturnType<typeof getServerSession>>) {
-  return (session?.user as { id?: string } | undefined)?.id;
+function getUserIdFromSession(session: unknown) {
+  return (session as { user?: { id?: string } } | null)?.user?.id;
 }
 
 export async function GET() {
@@ -26,7 +26,7 @@ export async function GET() {
   if (!profile) {
     const defaultProfile = createDefaultUserProfile(userId);
     await db.collection(COLLECTIONS.userProfiles).insertOne(defaultProfile);
-    profile = defaultProfile;
+    profile = defaultProfile as WithId<Document>;
   }
 
   return NextResponse.json({ profile });
