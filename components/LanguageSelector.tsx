@@ -5,6 +5,8 @@ import {
   ROAST_LANGUAGES,
   RoastLanguage,
 } from "@/lib/languages";
+import { useUiLanguage } from "@/components/UiLanguageProvider";
+import { translate } from "@/lib/translations";
 
 interface LanguageSelectorProps {
   language: RoastLanguage;
@@ -15,10 +17,12 @@ export default function LanguageSelector({
   language,
   onLanguageChange,
 }: LanguageSelectorProps) {
+  const { lang } = useUiLanguage();
+
   return (
     <div className="w-full">
       <label className="mb-2 block text-sm font-semibold tracking-wide text-slate-200">
-        Roast Language
+        {translate("slider.roastLanguage", lang)}
       </label>
       <select
         value={language}
@@ -32,7 +36,7 @@ export default function LanguageSelector({
         ))}
       </select>
       <p className="mt-1 text-xs text-slate-400">
-        The roast will be generated in your selected language.
+        {translate("home.roastLangDesc", lang)}
       </p>
     </div>
   );
