@@ -4,8 +4,8 @@ import { useEffect, useState, useRef } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import AppNavbar from "@/components/AppNavbar";
-import { IntensityLevel, INTENSITY_LABELS } from "@/lib/prompts";
-import { RoastLanguage, ROAST_LANGUAGE_LABELS } from "@/lib/languages";
+import { useUiLanguage } from "@/components/UiLanguageProvider";
+import { translate } from "@/lib/translations";
 
 type ApiProfile = {
   name?: string;
@@ -16,6 +16,7 @@ type ApiProfile = {
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
+  const { lang } = useUiLanguage();
   const [profile, setProfile] = useState<ApiProfile | null>(null);
   
   const [name, setName] = useState("");
@@ -135,13 +136,13 @@ export default function ProfilePage() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-800 text-slate-300">
             <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2m8-10a4 4 0 100-8 4 4 0 000 8z" /></svg>
           </div>
-          <h2 className="text-xl font-bold text-white mb-2">Profile Access</h2>
-          <p className="text-sm text-slate-400 mb-6">Please sign in to view and manage your profile settings.</p>
+          <h2 className="text-xl font-bold text-white mb-2">{translate("profile.profileAccess", lang)}</h2>
+          <p className="text-sm text-slate-400 mb-6">{translate("profile.signInPrompt", lang)}</p>
           <button
             onClick={() => signIn()}
             className="w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500 shadow-lg shadow-emerald-900/20"
           >
-            Sign in securely
+            {translate("profile.signInSecure", lang)}
           </button>
         </div>
       </div>
@@ -178,7 +179,7 @@ export default function ProfilePage() {
                       className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                       onClick={() => fileInputRef.current?.click()}
                     >
-                      <span className="text-xs font-semibold text-white">{isUploadingAvatar ? "Uploading..." : "Change"}</span>
+                      <span className="text-xs font-semibold text-white">{isUploadingAvatar ? translate("upload.uploading", lang) : translate("upload.change", lang)}</span>
                     </div>
                   </div>
                   <input
@@ -208,12 +209,12 @@ export default function ProfilePage() {
             <section className="rounded-3xl border border-slate-300/15 bg-slate-950/45 p-6 md:p-8 shadow-xl">
               <h2 className="display-font text-xl font-semibold text-slate-100 mb-6 flex items-center gap-2">
                 <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2m8-10a4 4 0 100-8 4 4 0 000 8z" /></svg>
-                Personal Info
+                {translate("profile.personalInfo", lang)}
               </h2>
               
               <div className="space-y-5">
                 <div>
-                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400">Display Name</label>
+                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400">{translate("profile.displayName", lang)}</label>
                   <input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -222,7 +223,7 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div>
-                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400">Bio</label>
+                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400">{translate("profile.bio", lang)}</label>
                   <textarea
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
@@ -238,30 +239,30 @@ export default function ProfilePage() {
           {/* Sidebar / Sticky Actions */}
           <div className="space-y-6 mt-6 md:mt-0">
             <div className="sticky top-6 rounded-3xl border border-slate-300/15 bg-slate-950/45 p-6 shadow-xl">
-              <h3 className="font-bold text-slate-100 mb-2">Save Changes</h3>
+              <h3 className="font-bold text-slate-100 mb-2">{translate("profile.saveChanges", lang)}</h3>
               <p className="text-xs text-slate-400 mb-6 leading-relaxed">
-                Make sure to save your preferences so they apply to all your future roasts.
+                {translate("profile.saveDesc", lang)}
               </p>
               <button
                 onClick={saveProfile}
                 disabled={isSaving}
                 className="w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-900/20 disabled:opacity-50"
               >
-                {isSaving ? "Saving..." : "Update Profile"}
+                {isSaving ? translate("profile.saving", lang) : translate("profile.updateProfile", lang)}
               </button>
             </div>
 
             <div className="rounded-3xl border border-rose-500/20 bg-rose-950/10 p-6 shadow-xl">
-              <h3 className="font-bold text-rose-300 mb-2">Danger Zone</h3>
+              <h3 className="font-bold text-rose-300 mb-2">{translate("profile.dangerZone", lang)}</h3>
               <p className="text-xs text-rose-200/60 mb-6 leading-relaxed">
-                Permanently delete your account, history, and all generated assets.
+                {translate("profile.dangerDesc", lang)}
               </p>
               <button
                 onClick={() => setShowDeleteConfirm(true)}
                 disabled={isDeleting}
                 className="w-full rounded-xl bg-rose-950/50 border border-rose-500/30 px-4 py-2.5 text-sm font-bold text-rose-400 hover:bg-rose-900/50 hover:text-rose-300 transition-all disabled:opacity-50"
               >
-                Delete Account
+                {translate("profile.deleteAccount", lang)}
               </button>
             </div>
           </div>
@@ -278,7 +279,7 @@ export default function ProfilePage() {
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
           <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
         </div>
-        <p className="text-sm font-bold text-emerald-100">Profile updated successfully!</p>
+        <p className="text-sm font-bold text-emerald-100">{translate("profile.updated", lang)}</p>
       </div>
 
       {/* Delete Account Confirmation Modal */}
@@ -294,9 +295,9 @@ export default function ProfilePage() {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-rose-500/20 text-rose-400">
               <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">Are you absolutely sure?</h3>
+            <h3 className="text-xl font-bold text-white mb-2">{translate("profile.deleteConfirmTitle", lang)}</h3>
             <p className="text-sm text-rose-200/80 mb-6 leading-relaxed">
-              This action cannot be undone. All your roasts, images, and personal data will be permanently deleted.
+              {translate("profile.deleteConfirmDesc", lang)}
             </p>
             <div className="flex gap-3">
               <button 
@@ -304,14 +305,14 @@ export default function ProfilePage() {
                 disabled={isDeleting}
                 className="flex-1 rounded-xl bg-slate-800/80 py-3 text-sm font-bold text-slate-300 hover:bg-slate-700 transition"
               >
-                Cancel
+                {translate("roasts.cancel", lang)}
               </button>
               <button 
                 onClick={confirmDelete}
                 disabled={isDeleting}
                 className="flex-1 rounded-xl bg-rose-600 py-3 text-sm font-bold text-white hover:bg-rose-500 transition disabled:opacity-50 shadow-lg shadow-rose-900/20"
               >
-                {isDeleting ? "Deleting..." : "Yes, Delete It"}
+                {isDeleting ? translate("roasts.deleting", lang) : translate("profile.yesDelete", lang)}
               </button>
             </div>
           </div>
