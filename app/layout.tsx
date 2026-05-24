@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk, Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
+import { UiLanguageProvider } from "@/components/UiLanguageProvider";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-display",
@@ -35,7 +36,9 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-slate-950">
         <AuthProvider>
-          <div className="flex-1">{children}</div>
+          <UiLanguageProvider>
+            <div className="flex-1">{children}</div>
+          </UiLanguageProvider>
           
           <footer className="mt-auto border-t border-slate-800/60 bg-slate-950/80 py-8 backdrop-blur-md">
             <div className="mx-auto max-w-7xl px-4 flex flex-col md:flex-row items-center justify-between gap-6 text-slate-400">
