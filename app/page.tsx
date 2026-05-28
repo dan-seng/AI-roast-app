@@ -21,6 +21,7 @@ export default function Home() {
   const { data: session, status } = useSession();
   const { lang } = useUiLanguage();
   const [authIntent, setAuthIntent] = useState<AuthIntent>(null);
+  const [isLoggingIn, setIsLoggingIn] = useState<string | null>(null);
 
   const [image, setImage] = useState<string | null>(null);
   const [intensity, setIntensity] = useState<IntensityLevel>("medium");
