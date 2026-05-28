@@ -189,7 +189,7 @@ export default function Home() {
             <div className="relative flex flex-col justify-between gap-8 p-6 pb-2 text-center md:p-12 md:text-left lg:gap-0">
               <div className="flex flex-col items-center md:items-start">
                 <p className="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-emerald-300/90 md:mb-4 md:text-lg">
-                  {translate("hero.welcomeTo", lang)} <span className="mt-1 block text-4xl md:mt-0 md:inline md:text-5xl">ኩክኒስ</span>
+                  {translate("hero.welcomeTo", lang)} <span className="mt-1 block text-4xl md:mt-0 md:inline md:text-5xl nokiapure">ኩክኒስ</span>
                 </p>
                 <h1 className="display-font mt-2 max-w-3xl text-4xl font-bold leading-[1.15] text-slate-100 md:mt-0 md:text-7xl md:leading-[0.95] whitespace-pre-line">
                   {translate("hero.roastBetter", lang)}
