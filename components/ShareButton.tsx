@@ -256,7 +256,7 @@ export default function ShareButton({ roast, image, roastHistoryId, onExportLogg
         {isGenerating ? "Processing..." : "Export Image"}
       </button>
      
-  
+   
 
       {/* Sleek UI Toast */}
       {toastMessage && (
