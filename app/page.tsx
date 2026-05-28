@@ -142,9 +142,9 @@ export default function Home() {
   if (status === "loading") {
     return (
       <div className="min-h-screen p-3 md:p-6 animate-pulse">
-        <section className="h-[calc(100vh-24px)] w-full rounded-3xl md:h-[calc(100vh-48px)] border border-slate-300/10 bg-slate-900/20">
-          <div className="grid h-full lg:grid-cols-[1.25fr_0.75fr]">
-            <div className="flex flex-col p-8 md:p-12">
+        <section className="min-h-[calc(100vh-24px)] w-full rounded-3xl md:min-h-[calc(100vh-48px)] border border-slate-300/10 bg-slate-900/20 flex flex-col">
+          <div className="flex-1 grid lg:grid-cols-[1.25fr_0.75fr] gap-6 lg:gap-0">
+            <div className="flex flex-col p-6 md:p-12">
               <div className="mt-12 space-y-4">
                 <div className="h-8 w-48 rounded-lg bg-slate-800/60"></div>
                 <div className="h-20 w-3/4 rounded-xl bg-slate-800/60 mt-6"></div>
@@ -170,7 +170,7 @@ export default function Home() {
     return (
       <div className="min-h-screen p-3 md:p-6">
         <section
-          className="interactive-bg h-[calc(100vh-24px)] w-full rounded-3xl md:h-[calc(100vh-48px)]"
+          className="interactive-bg min-h-[calc(100vh-24px)] w-full rounded-3xl md:min-h-[calc(100vh-48px)] flex flex-col"
           style={
             {
               "--mx": `${pointerGlow.x}%`,
@@ -184,35 +184,35 @@ export default function Home() {
             setPointerGlow({ x, y });
           }}
         >
-          <div className="grid h-full lg:grid-cols-[1.25fr_0.75fr]">
-            <div className="relative flex flex-col justify-between p-8 md:p-12">
-              <div>
-                <p className="mb-4 text-lg font-semibold uppercase tracking-[0.24em] text-emerald-300/90">
-                  {translate("hero.welcomeTo", lang)} <span className="text-5xl">ኩክኒስ</span>
+          <div className="flex-1 grid lg:grid-cols-[1.25fr_0.75fr] gap-4 md:gap-6 lg:gap-0">
+            <div className="relative flex flex-col justify-between gap-8 p-6 pb-2 text-center md:p-12 md:text-left lg:gap-0">
+              <div className="flex flex-col items-center md:items-start">
+                <p className="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-emerald-300/90 md:mb-4 md:text-lg">
+                  {translate("hero.welcomeTo", lang)} <span className="mt-1 block text-4xl md:mt-0 md:inline md:text-5xl">ኩክኒስ</span>
                 </p>
-                <h1 className="display-font max-w-3xl text-5xl font-bold leading-[0.95] text-slate-100 md:text-7xl whitespace-pre-line">
+                <h1 className="display-font mt-2 max-w-3xl text-4xl font-bold leading-[1.15] text-slate-100 md:mt-0 md:text-7xl md:leading-[0.95] whitespace-pre-line">
                   {translate("hero.roastBetter", lang)}
                 </h1>
-                <p className="mt-6 max-w-2xl text-base text-slate-300 md:text-xl">
+                <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-300 md:mt-6 md:text-xl">
                   {translate("hero.description", lang)}
                 </p>
               </div>
 
-              <div className="grid gap-3 text-sm text-slate-300 md:max-w-2xl md:grid-cols-3">
-                <div className="rounded-xl border border-slate-400/25 bg-slate-900/45 p-3">
+              <div className="hidden gap-3 text-sm text-slate-300 md:grid md:max-w-2xl md:grid-cols-3">
+                <div className="rounded-xl border border-slate-400/25 bg-slate-900/45 p-4">
                   {translate("hero.instantRoast", lang)}
                 </div>
-                <div className="rounded-xl border border-slate-400/25 bg-slate-900/45 p-3">
+                <div className="rounded-xl border border-slate-400/25 bg-slate-900/45 p-4">
                   {translate("hero.signInOptions", lang)}
                 </div>
-                <div className="rounded-xl border border-slate-400/25 bg-slate-900/45 p-3">
+                <div className="rounded-xl border border-slate-400/25 bg-slate-900/45 p-4">
                   {translate("hero.savedHistory", lang)}
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center p-5 md:p-8">
-              <div className="w-full rounded-2xl border border-slate-400/30 bg-slate-950/80 p-6 md:p-7">
+            <div className="flex items-center justify-center p-5 pb-8 pt-2 md:p-8 md:pt-8">
+              <div className="w-full max-w-md rounded-2xl border border-slate-400/30 bg-slate-950/80 p-6 lg:max-w-none md:p-8">
                 <h2 className="display-font text-3xl font-semibold text-slate-100">
                   {authIntent === "create" ? translate("hero.createAccount", lang) : translate("hero.signIn", lang)}
                 </h2>
@@ -296,7 +296,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      <div className="mx-auto max-w-7xl px-4 py-10 md:py-14">
+      <div className="mx-auto max-w-7xl px-4 py-10 pb-24 md:py-14 md:pb-14">
         <AppNavbar />
 
         <header className="mb-6 rounded-3xl border border-slate-300/15 bg-slate-950/45 p-6 md:mb-8 md:p-8">
