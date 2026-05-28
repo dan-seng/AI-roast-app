@@ -144,7 +144,7 @@ export default function RoastsPage() {
   }
 
   return (
-    <div className="min-h-screen px-4 py-10 md:py-14">
+    <div className="min-h-screen px-4 py-10 pb-24 md:py-14 md:pb-14">
       <div className="mx-auto max-w-7xl">
         <AppNavbar />
         <section className="rounded-3xl border border-slate-300/15 bg-slate-950/45 p-5 md:p-6">

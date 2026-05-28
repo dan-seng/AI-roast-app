@@ -150,7 +150,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen px-4 py-10 md:py-14 pb-32">
+    <div className="min-h-screen px-4 py-10 pb-28 md:py-14 md:pb-14">
       <div className="mx-auto max-w-7xl">
         <AppNavbar />
       </div>
