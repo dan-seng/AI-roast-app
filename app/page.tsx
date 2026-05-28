@@ -309,37 +309,50 @@ export default function Home() {
                 {translate("home.uploadTune", lang)}
               </p>
             </div>
-            <div className="flex items-center gap-3 rounded-xl border border-slate-500/50 bg-slate-900/55 px-4 py-3 text-right">
-              <div className="relative h-11 w-11 overflow-hidden rounded-full border border-slate-500/60 bg-slate-800">
-                {profileAvatar ? (
-                  <Image
-                    src={profileAvatar}
-                    alt="Profile picture"
-                    fill
-                    unoptimized
-                    sizes="44px"
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="grid h-full w-full place-items-center text-sm font-semibold text-slate-300">
-                    {(profileName || session.user?.name || "U")
-                      .slice(0, 1)
-                      .toUpperCase()}
-                  </div>
-                )}
+            <div className="mt-2 flex w-full items-center justify-between gap-4 rounded-2xl border border-slate-500/30 bg-slate-900/40 p-3 shadow-inner md:mt-0 md:w-auto md:justify-end md:gap-3 md:border-slate-500/50 md:bg-slate-900/55 md:px-4 md:shadow-none">
+              <div className="flex items-center gap-3">
+                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border border-slate-500/60 bg-slate-800">
+                  {profileAvatar ? (
+                    <Image
+                      src={profileAvatar}
+                      alt="Profile picture"
+                      fill
+                      unoptimized
+                      sizes="44px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="grid h-full w-full place-items-center text-sm font-semibold text-slate-300">
+                      {(profileName || session.user?.name || "U")
+                        .slice(0, 1)
+                        .toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                <div className="text-left md:text-right">
+                  <p className="text-sm font-semibold text-slate-100 line-clamp-1">
+                    {profileName || session.user?.name || translate("auth.signedIn", lang)}
+                  </p>
+                  <p className="text-xs text-slate-400 line-clamp-1 max-w-[180px] md:max-w-none">{session.user?.email}</p>
+                  <button
+                    onClick={() => signOut()}
+                    className="mt-2 hidden text-xs font-semibold text-emerald-300 hover:text-emerald-200 md:inline-block"
+                  >
+                    {translate("home.signOut", lang)}
+                  </button>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-semibold text-slate-100">
-                  {profileName || session.user?.name || translate("auth.signedIn", lang)}
-                </p>
-                <p className="text-xs text-slate-400">{session.user?.email}</p>
-                <button
-                  onClick={() => signOut()}
-                  className="mt-2 text-xs font-semibold text-emerald-300 hover:text-emerald-200"
-                >
-                  {translate("home.signOut", lang)}
-                </button>
-              </div>
+
+              {/* Mobile-only Sign Out Button */}
+              <button
+                onClick={() => signOut()}
+                className="flex shrink-0 items-center justify-center rounded-xl bg-slate-800/80 p-2.5 text-rose-400 transition hover:bg-slate-700 md:hidden"
+                aria-label="Sign out"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </button>
             </div>
           </div>
         </header>
