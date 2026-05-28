@@ -246,45 +246,41 @@ export default function Home() {
 
                 <div className="mt-5 space-y-3">
                   <button
-                    onClick={() => signIn("google")}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-200"
+                    disabled={isLoggingIn !== null}
+                    onClick={async () => { setIsLoggingIn("google"); await signIn("google", { callbackUrl: "/" }); }}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-70"
                   >
-                    <svg
-                      viewBox="0 0 24 24"
-                      className="h-5 w-5"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fill="#4285F4"
-                        d="M23.49 12.27c0-.79-.07-1.54-.2-2.27H12v4.3h6.46a5.52 5.52 0 01-2.39 3.62v3h3.87c2.26-2.08 3.55-5.14 3.55-8.65z"
-                      />
-                      <path
-                        fill="#34A853"
-                        d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.87-3c-1.07.72-2.44 1.15-4.08 1.15-3.13 0-5.78-2.11-6.72-4.95H1.29v3.11A12 12 0 0012 24z"
-                      />
-                      <path
-                        fill="#FBBC05"
-                        d="M5.28 14.29A7.2 7.2 0 014.9 12c0-.8.14-1.57.38-2.29V6.6H1.29A12 12 0 000 12c0 1.94.47 3.77 1.29 5.4l3.99-3.11z"
-                      />
-                      <path
-                        fill="#EA4335"
-                        d="M12 4.77c1.76 0 3.33.61 4.57 1.8l3.42-3.42C17.95 1.17 15.23 0 12 0A12 12 0 001.29 6.6l3.99 3.11c.94-2.84 3.59-4.94 6.72-4.94z"
-                      />
-                    </svg>
-                    {translate("hero.continueGoogle", lang)}
+                    {isLoggingIn === "google" ? (
+                      <svg className="h-5 w-5 animate-spin text-slate-900" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" strokeDasharray="30 30" opacity="0.3"></circle>
+                        <path fill="currentColor" d="M12 2a10 10 0 00-10 10h4a6 6 0 016-6V2z"></path>
+                      </svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+                        <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.2-2.27H12v4.3h6.46a5.52 5.52 0 01-2.39 3.62v3h3.87c2.26-2.08 3.55-5.14 3.55-8.65z" />
+                        <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.87-3c-1.07.72-2.44 1.15-4.08 1.15-3.13 0-5.78-2.11-6.72-4.95H1.29v3.11A12 12 0 0012 24z" />
+                        <path fill="#FBBC05" d="M5.28 14.29A7.2 7.2 0 014.9 12c0-.8.14-1.57.38-2.29V6.6H1.29A12 12 0 000 12c0 1.94.47 3.77 1.29 5.4l3.99-3.11z" />
+                        <path fill="#EA4335" d="M12 4.77c1.76 0 3.33.61 4.57 1.8l3.42-3.42C17.95 1.17 15.23 0 12 0A12 12 0 001.29 6.6l3.99 3.11c.94-2.84 3.59-4.94 6.72-4.94z" />
+                      </svg>
+                    )}
+                    {isLoggingIn === "google" ? "Loading..." : translate("hero.continueGoogle", lang)}
                   </button>
                   <button
-                    onClick={() => signIn("github")}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-800 px-5 py-3 text-sm font-semibold text-slate-100 ring-1 ring-slate-600 transition hover:bg-slate-700"
+                    disabled={isLoggingIn !== null}
+                    onClick={async () => { setIsLoggingIn("github"); await signIn("github", { callbackUrl: "/" }); }}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-800 px-5 py-3 text-sm font-semibold text-slate-100 ring-1 ring-slate-600 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-70"
                   >
-                    <svg
-                      viewBox="0 0 24 24"
-                      className="h-5 w-5 fill-current"
-                      aria-hidden="true"
-                    >
-                      <path d="M12 .5a12 12 0 00-3.79 23.39c.6.11.82-.26.82-.58v-2.2c-3.34.73-4.04-1.41-4.04-1.41-.55-1.38-1.34-1.75-1.34-1.75-1.1-.76.08-.75.08-.75 1.2.08 1.84 1.24 1.84 1.24 1.08 1.85 2.83 1.32 3.52 1 .11-.78.42-1.31.76-1.62-2.67-.31-5.47-1.34-5.47-5.94 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.53.12-3.19 0 0 1.01-.33 3.3 1.23a11.4 11.4 0 016 0c2.29-1.56 3.29-1.23 3.29-1.23.67 1.66.26 2.89.13 3.19.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.49 5.93.43.37.82 1.11.82 2.24v3.32c0 .32.22.7.83.58A12 12 0 0012 .5z" />
-                    </svg>
-                    {translate("hero.continueGitHub", lang)}
+                    {isLoggingIn === "github" ? (
+                      <svg className="h-5 w-5 animate-spin text-slate-100" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" strokeDasharray="30 30" opacity="0.3"></circle>
+                        <path fill="currentColor" d="M12 2a10 10 0 00-10 10h4a6 6 0 016-6V2z"></path>
+                      </svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current" aria-hidden="true">
+                        <path d="M12 .5a12 12 0 00-3.79 23.39c.6.11.82-.26.82-.58v-2.2c-3.34.73-4.04-1.41-4.04-1.41-.55-1.38-1.34-1.75-1.34-1.75-1.1-.76.08-.75.08-.75 1.2.08 1.84 1.24 1.84 1.24 1.08 1.85 2.83 1.32 3.52 1 .11-.78.42-1.31.76-1.62-2.67-.31-5.47-1.34-5.47-5.94 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.53.12-3.19 0 0 1.01-.33 3.3 1.23a11.4 11.4 0 016 0c2.29-1.56 3.29-1.23 3.29-1.23.67 1.66.26 2.89.13 3.19.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.49 5.93.43.37.82 1.11.82 2.24v3.32c0 .32.22.7.83.58A12 12 0 0012 .5z" />
+                      </svg>
+                    )}
+                    {isLoggingIn === "github" ? "Loading..." : translate("hero.continueGitHub", lang)}
                   </button>
                 </div>
               </div>
