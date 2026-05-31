@@ -28,14 +28,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid roast payload" }, { status: 400 });
     }
 
+    await ensureDbIndexes();
+    const client = await clientPromise;
+    const db = client.db();
+
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const dailyRoastsCount = await db.collection(COLLECTIONS.roastHistory).countDocuments({
+      userId,
+      createdAt: { $gte: startOfDay },
+    });
+
+    if (dailyRoastsCount >= 3) {
+      const resetDate = new Date(startOfDay);
+      resetDate.setDate(resetDate.getDate() + 1);
+      const resetString = resetDate.toLocaleString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        timeZoneName: "short",
+      });
+
+      return NextResponse.json(
+        { error: `Daily limit reached (3/3). Your usage will reset on ${resetString}.` },
+        { status: 429 }
+      );
+    }
+
     const { image, intensity, userDefense, language } = parsed.data;
     const base64Image = image.replace(/^data:image\/[a-z]+;base64,/, "");
 
     const roast = await generateRoast(base64Image, intensity, userDefense, language);
-
-    await ensureDbIndexes();
-    const client = await clientPromise;
-    const db = client.db();
 
     const roastDoc: RoastHistory = {
       userId,
